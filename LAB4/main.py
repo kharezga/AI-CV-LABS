@@ -7,12 +7,32 @@ from matplotlib import pyplot as plot
 
 
 def display(out, name):
+    """Equalize histogram.
+
+                Parameters
+                ----------
+                out : OpenCV type
+                   The image to be shown
+                name : str
+                   Title of the window
+
+                """
     cv.imshow(name, out)
     cv.waitKey(0)
     cv.destroyAllWindows()
 
 
 def histogram(fname, file):
+    """Calculates and plots histogram of the image.
+
+                Parameters
+                ----------
+                file : OpenCV type
+                   The image to be processed
+                fname : str
+                   Title of the plot
+
+                """
     cv.imshow(fname, file)  # display the current image
     plot.hist(file.ravel(), 256, [0, 256])  # histogram calculation
     plot.title(fname + ' - histogram', fontdict=None, loc='center', pad=None)  # setting figure title
@@ -21,8 +41,17 @@ def histogram(fname, file):
     cv.destroyAllWindows(),
 
 
-
 def equal_hist(fname, file):
+    """Equalize histogram.
+
+             Parameters
+             ----------
+             file : OpenCV type
+                The image to be processed
+             fname : str
+                Title of the plot
+
+             """
     img = cv.cvtColor(file, cv.COLOR_BGR2GRAY)  # change colour to the black and white
     eql = cv.equalizeHist(img, None)  # histogram equalization
     cv.imshow(fname + 'black_n_white', img)  # displaying original image
@@ -32,6 +61,17 @@ def equal_hist(fname, file):
 
 
 def quantizator(fname, level=32):
+    """Performs quantization of the given image.
+
+             Parameters
+             ----------
+             fname : OpenCV type
+                The image to be processed
+             level : int
+                Level of the quantization
+
+             """
+
     out = np.zeros((fname.shape[0], fname.shape[1]), dtype='uint8')
     max = np.max(fname)
     min = np.min(fname)
@@ -54,11 +94,31 @@ def quantizator(fname, level=32):
 
 
 def img_thresholding(img, type_of_thresh, title):
+    """Performs tresholding of the image.
+
+             Parameters
+             ----------
+             img : OpenCV type
+                The image to be processed
+             type_of_thresh: OpenCV type
+                Type of the tresholding
+             title : str
+                Title of the plot
+
+             """
     ret, thresh = cv.threshold(img, 127, 255, type_of_thresh)
     histogram(title, thresh)
 
 
 def DFT(img):
+    """Tranforms the given image into the frequency domain with use of DFT.
+
+         Parameters
+         ----------
+         img : OpenCV type
+            The image to be processed
+
+         """
     dft = cv.dft(np.float32(img), flags=cv.DFT_COMPLEX_OUTPUT)
     dft_shift = np.fft.fftshift(dft)
     magnitude_spectrum = 20 * np.log(cv.magnitude(dft_shift[:, :, 0], dft_shift[:, :, 1]))
@@ -71,23 +131,19 @@ def DFT(img):
     rrow = row // 2
     ccol = col // 2
 
-
     mask = np.ones((row, col, 2), np.uint8)
     mask[rrow:rrow, ccol:ccol] = 0
 
     fshift = dft_shift * mask
     f_ishift = np.fft.ifftshift(fshift)
 
-
     res = cv.idft(f_ishift)
     res = cv.magnitude(res[:, :, 0], res[:, :, 1])
-
 
     plot.subplot(223), plot.imshow(res, cmap='gray')
     plot.title('Repaired image'), plot.xticks([]), plot.yticks([])
 
     plot.show()
-
 
 
 def main():
@@ -102,9 +158,11 @@ def main():
     img_lena = cv.imread(image_lena, 1)
     img_lena_bw = cv.imread(image_lena, 0)
 
-
     histogram('High Histogram', img_high)
     histogram('Low Histogram', img_low)
+
+    equal_hist('Equalized Histogram High', img_high)
+    equal_hist('Equalized Histogram Low', img_low)
 
     img_thresholding(img_lena, cv.THRESH_BINARY, 'Binary Thresholding')
     img_thresholding(img_lena, cv.THRESH_BINARY_INV, 'Binary Inverted Thresholding')
@@ -120,6 +178,7 @@ def main():
 
     # histogram('Quantized High - 128', quantizator(img_high, 128))
     # histogram('Quantized Low - 128', quantizator(img_low, 128))
+
 
 if __name__ == "__main__":
     main()
