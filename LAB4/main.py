@@ -161,9 +161,6 @@ def main():
     histogram('High Histogram', img_high)
     histogram('Low Histogram', img_low)
 
-    equal_hist('Equalized Histogram High', img_high)
-    equal_hist('Equalized Histogram Low', img_low)
-
     img_thresholding(img_lena, cv.THRESH_BINARY, 'Binary Thresholding')
     img_thresholding(img_lena, cv.THRESH_BINARY_INV, 'Binary Inverted Thresholding')
     img_thresholding(img_lena, cv.THRESH_TRUNC, 'Trunc Thresholding')
