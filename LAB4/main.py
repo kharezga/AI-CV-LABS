@@ -1,6 +1,6 @@
 # AI&CV Lab 4 - Kacper Harezga 249111
 
-import DFT
+
 import cv2 as cv
 import numpy as np
 from matplotlib import pyplot as plot
@@ -59,38 +59,34 @@ def img_thresholding(img, type_of_thresh, title):
 
 
 def DFT(img):
-    f = np.fft.fft2(img)
-    fshift = np.fft.fftshift(f)
-    magnitude_spectrum = 20 * np.log(np.abs(fshift))
+    dft = cv.dft(np.float32(img), flags=cv.DFT_COMPLEX_OUTPUT)
+    dft_shift = np.fft.fftshift(dft)
+    magnitude_spectrum = 20 * np.log(cv.magnitude(dft_shift[:, :, 0], dft_shift[:, :, 1]))
 
-    plot.subplot(121), plot.imshow(img, cmap='gray')
-    plot.title('Input Image'), plot.xticks([]), plot.yticks([])
     plot.subplot(122), plot.imshow(magnitude_spectrum, cmap='gray')
-    plot.title('Magnitude Spectrum'), plot.xticks([]), plot.yticks([])
-    plot.show()
+    plot.title('DFT '), plot.xticks([]), plot.yticks([])
+
+    row = img.shape[0]
+    col = img.shape[1]
+    rrow = row // 2
+    ccol = col // 2
 
 
-def inv_DFT(img):
-    f = np.fft.fft2(img)
-    fshift = np.fft.fftshift(f)
-    magnitude_spectrum = 20 * np.log(np.abs(fshift))
+    mask = np.ones((row, col, 2), np.uint8)
+    mask[rrow:rrow, ccol:ccol] = 0
 
-    rows, cols = img.shape
-    crow, ccol = rows / 2, cols / 2
-    fshift[crow - 30:crow + 30, ccol - 30:ccol + 30] = 0
+    fshift = dft_shift * mask
     f_ishift = np.fft.ifftshift(fshift)
-    img_back = np.fft.ifft2(f_ishift)
-    img_back = np.abs(img_back)
 
-    plot.subplot(131), plot.imshow(img, cmap='gray')
-    plot.title('Input Image'), plot.xticks([]), plot.yticks([])
-    plot.subplot(132), plot.imshow(img_back, cmap='gray')
-    plot.title('Image after HPF'), plot.xticks([]), plot.yticks([])
-    plot.subplot(133), plot.imshow(img_back)
-    plot.title('Result in JET'), plot.xticks([]), plot.yticks([])
+
+    res = cv.idft(f_ishift)
+    res = cv.magnitude(res[:, :, 0], res[:, :, 1])
+
+
+    plot.subplot(223), plot.imshow(res, cmap='gray')
+    plot.title('Repaired image'), plot.xticks([]), plot.yticks([])
 
     plot.show()
-
 
 
 
@@ -106,8 +102,6 @@ def main():
     img_lena = cv.imread(image_lena, 1)
     img_lena_bw = cv.imread(image_lena, 0)
 
-    DFT(img_lena_bw)
-    #  inv_DFT(img_lena_bw)
 
     histogram('High Histogram', img_high)
     histogram('Low Histogram', img_low)
@@ -115,6 +109,8 @@ def main():
     img_thresholding(img_lena, cv.THRESH_BINARY, 'Binary Thresholding')
     img_thresholding(img_lena, cv.THRESH_BINARY_INV, 'Binary Inverted Thresholding')
     img_thresholding(img_lena, cv.THRESH_TRUNC, 'Trunc Thresholding')
+
+    DFT(img_lena_bw)
 
     histogram('Quantized High - 32', quantizator(img_high, 32))
     histogram('Quantized Low - 32', quantizator(img_low, 32))
