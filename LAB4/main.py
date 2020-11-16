@@ -93,7 +93,7 @@ def quantizator(fname, level=32):
     return out
 
 
-def img_thresholding(img, type_of_thresh, title):
+def img_thresholding(img, lvl, type_of_thresh, title):
     """Performs tresholding of the image.
 
              Parameters
@@ -101,12 +101,14 @@ def img_thresholding(img, type_of_thresh, title):
              img : OpenCV type
                 The image to be processed
              type_of_thresh: OpenCV type
-                Type of the tresholding
+                Type of the thresholding
              title : str
                 Title of the plot
+            lvl : int
+                Level of the thresholding
 
              """
-    ret, thresh = cv.threshold(img, 127, 255, type_of_thresh)
+    ret, thresh = cv.threshold(img, lvl, 255, type_of_thresh)
     histogram(title, thresh)
 
 
@@ -161,13 +163,13 @@ def main():
     histogram('High Histogram', img_high)
     histogram('Low Histogram', img_low)
 
-    img_thresholding(img_lena, cv.THRESH_BINARY, 'Binary Thresholding')
-    img_thresholding(img_lena, cv.THRESH_BINARY_INV, 'Binary Inverted Thresholding')
-    img_thresholding(img_lena, cv.THRESH_TRUNC, 'Trunc Thresholding')
+    img_thresholding(img_lena, 127, cv.THRESH_BINARY, 'Binary Thresholding')
+    img_thresholding(img_lena, 127, cv.THRESH_BINARY_INV, 'Binary Inverted Thresholding')
+    img_thresholding(img_lena, 127,  cv.THRESH_TRUNC, 'Trunc Thresholding')
 
     DFT(img_lena_bw)
 
-    histogram('Quantized High - 32', quantizator(img_high, 32))
+    histogram('Quantized High - 64', quantizator(img_high, 64))
     histogram('Quantized Low - 32', quantizator(img_low, 32))
 
     # histogram('Quantized High - 64', quantizator(img_high, 64))
