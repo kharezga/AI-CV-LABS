@@ -17,7 +17,7 @@ def display(image, name):
     cv.destroyAllWindows()
 
 
-def addGaussianNoise(image, setting):
+def addSNP(image, setting):
     output = np.zeros(image.shape, np.uint8)  # Creation of the blank output image
     th = 1 - setting
     for i in range(image.shape[0]):
@@ -30,6 +30,15 @@ def addGaussianNoise(image, setting):
             else:
                 output[i][j] = image[i][j]
     return output
+
+
+def addGaussian(image):
+    # Generate Gaussian noise
+    gauss = np.random.normal(0, 1, image.size)
+    gauss = gauss.reshape(image.shape[0], image.shape[1], image.shape[2]).astype('uint8')
+    # Add the Gaussian noise to the image
+    img_gauss = cv.add(image, gauss)
+    return img_gauss
 
 
 def medianFiltering(image, coef):
@@ -47,6 +56,11 @@ def medianFiltering(image, coef):
     return compare
 
 
+def GaussianFiltering(image):
+    im = cv.GaussianBlur(image, (3, 3), 0, borderType=cv.BORDER_CONSTANT)
+    display(im, 'Filtered Image')
+
+
 def sharpening(image):
     kernel = np.array([[0, -1, 0], [-1, 5, -1], [0, -1, 0]])
     im = cv.filter2D(image, -1, kernel)
@@ -58,8 +72,8 @@ img_low = cv.imread('Photo_LOW.jpg', 1)
 
 display(img_high, 'Original Image')
 
-noisy_high_1 = addGaussianNoise(img_high, 0.01)
-noisy_high_2 = addGaussianNoise(img_high, 0.05)
+noisy_high_1 = addSNP(img_high, 0.01)
+noisy_high_2 = addSNP(img_high, 0.05)
 
 display(noisy_high_1, 'After')
 display(noisy_high_2, 'After')
@@ -68,3 +82,8 @@ filtered_SNP = medianFiltering(noisy_high_2, 5)
 display(filtered_SNP, 'Repaired')
 
 sharpening(filtered_SNP)
+
+Grzegorz = addGaussian(img_high)
+GaussianFiltering(Grzegorz)
+
+ 
