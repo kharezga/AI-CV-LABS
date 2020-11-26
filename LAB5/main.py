@@ -82,7 +82,7 @@ class T2:
         # Add the Gaussian noise to the image
         img_gauss = cv.add(self.image, gauss)
         self.__display(img_gauss, 'Image with Gaussian Noise')
-        
+
         return img_gauss
 
     def GaussianFiltering(self, image):
@@ -97,11 +97,43 @@ class T2:
         self.__display(im, 'Sharpened Image')
 
 
+class T3:
+    def __init__(self, image, name):
+        self.image = image
+        self.name = name
+
+    def __display(self, image, title):
+        """Display given image.
+                    Parameters
+                    ----------
+                    out : OpenCV type
+                       The image to be shown
+                    name : str
+                       Title of the window
+                    """
+        cv.imshow(self.name + ' ' + title, image)
+        cv.waitKey()
+        cv.destroyAllWindows()
+
+    def sobelFilter(self, image):
+        gray_image = cv.cvtColor(image, cv.COLOR_BGR2BGRA)
+
+        grad_x = cv.Sobel(gray_image, cv.CV_16S, 1, 0, ksize=3, scale=1, delta=0, borderType=cv.BORDER_DEFAULT)
+        grad_y = cv.Sobel(gray_image, cv.CV_16S, 0, 1, ksize=3, scale=1, delta=0, borderType=cv.BORDER_DEFAULT)
+
+        abs_grad_x = cv.convertScaleAbs(grad_x)
+        abs_grad_y = cv.convertScaleAbs(grad_y)
+
+        grad = cv.addWeighted(abs_grad_x, 0.5, abs_grad_y, 0.5, 0)
+
+        self.__display(grad, 'Sobel filter')
+
+
 def main():
     img_high = cv.imread('Photo_HF.jpeg', 1)
     img_low = cv.imread('Photo_LOW.jpg', 1)
 
-    # TASK1 for the high frequency image
+    # Objects for Task 1
     task1_hf = T1(img_high, 'High Freq.')
     task1_lf = T1(img_low, 'Low Freq.')
 
@@ -111,13 +143,26 @@ def main():
 
     # TODO Implementacja obrazu lf
 
-    # TASK2 for the high frequency image
+    # Objects for Task 2
     task2_hf = T2(img_high, 'High freq.')
-    task2_lf = T1(img_low, 'Low Freq.')
+    task2_lf = T2(img_low, 'Low Freq.')
 
     gauss_high1 = task2_hf.addGaussian()
     gauss_high1 = task2_hf.GaussianFiltering(gauss_high1)
     task2_hf.sharpening(gauss_high1)
+
+    # TODO Implementacja obrazu lf
+
+    # Objects for the Task 3/4
+    task3_hf = T3(img_high, 'High freq.')
+    task3_lf = T3(img_low, 'Low Freq.')
+
+    # TASK 3
+    task3_hf.sobelFilter(img_high)
+
+    gauss_sobel = task2_hf.addGaussian()
+    task3_hf.sobelFilter(gauss_sobel)
+
 
 
 if __name__ == "__main__":
