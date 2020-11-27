@@ -52,9 +52,8 @@ class T1:
         return median
 
     def sharpening(self, image):
-        kernel = np.array([[0, -1, 0], [-1, 5, -1], [0, -1, 0]])
-        im = cv.filter2D(image, -1, kernel)
-        self.__display(im, 'Sharpened Image')
+        final = cv.addWeighted(self.image, 1.5, image, -0.5, 0)
+        self.__display(final, 'Sharpened Image')
 
 
 class T2:
@@ -92,9 +91,12 @@ class T2:
         return im
 
     def sharpening(self, image):
-        kernel = np.array([[0, -1, 0], [-1, 5, -1], [0, -1, 0]])
-        im = cv.filter2D(image, -1, kernel)
-        self.__display(im, 'Sharpened Image')
+        # Another approach
+        #  kernel = np.array([[0, -1, 0], [-1, 5, -1], [0, -1, 0]])
+        # im = cv.filter2D(image, -1, kernel)
+
+        final = cv.addWeighted(self.image, 1.5, image, -0.5, 0)
+        self.__display(final, 'Sharpened Image')
 
 
 class T3:
@@ -125,8 +127,56 @@ class T3:
         abs_grad_y = cv.convertScaleAbs(grad_y)
 
         grad = cv.addWeighted(abs_grad_x, 0.5, abs_grad_y, 0.5, 0)
+        # grad = cv.addWeighted(abs_grad_x, 1.5, abs_grad_y, -0.5, 0)
 
         self.__display(grad, 'Sobel filter')
+
+
+class T4:
+    def __init__(self, image, name):
+        self.image = image
+        self.name = name
+
+    def __display(self, image, title):
+        """Display given image.
+                    Parameters
+                    ----------
+                    out : OpenCV type
+                       The image to be shown
+                    name : str
+                       Title of the window
+                    """
+        cv.imshow(self.name + ' ' + title, image)
+        cv.waitKey()
+        cv.destroyAllWindows()
+
+    def laplaceFilter(self, kernel):
+
+        img_bw = cv.cvtColor(self.image, cv.COLOR_RGB2GRAY)
+        m, n = kernel.shape
+
+        d = int((m - 1) / 2)
+        h, w = img_bw.shape[0], img_bw.shape[1]
+
+        dst = np.zeros((h, w))
+
+        for y in range(d, h - d):
+            for x in range(d, w - d):
+                dst[y][x] = np.sum(img_bw[y - d:y + d + 1, x - d:x + d + 1] * kernel)
+
+        self.__display(dst, 'My Laplace')
+
+    def buildInFilter(self):
+        image = cv.GaussianBlur(self.image, (3, 3), 0)
+        image_gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
+
+        kernel = np.array([[1, 1, 1],
+                           [1, -8, 1],
+                           [1, 1, 1]])
+
+        dst = cv.Laplacian(image_gray, cv.CV_64F, kernel)
+
+        self.__display(dst, 'Build In Laplace')
 
 
 def main():
@@ -163,6 +213,16 @@ def main():
     gauss_sobel = task2_hf.addGaussian()
     task3_hf.sobelFilter(gauss_sobel)
 
+    # TASK 4
+    task4_hf = T4(img_high, 'High freq.')
+
+    task4_hf.buildInFilter()
+
+    t4_kernel = np.array([[1, 1, 1],
+                          [1, -8, 1],
+                          [1, 1, 1]])
+    
+    task4_hf.laplaceFilter(t4_kernel)
 
 
 if __name__ == "__main__":
