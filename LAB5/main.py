@@ -12,9 +12,9 @@ class T1:
         """Display given image.
                     Parameters
                     ----------
-                    out : OpenCV type
+                    image : OpenCV type
                        The image to be shown
-                    name : str
+                    title : str
                        Title of the window
                     """
         cv.imshow(self.name + ' ' + title, image)
@@ -40,7 +40,7 @@ class T1:
         """Removes salt and pepper noise
                          Parameters
                          ----------
-                         image : OpenCV type
+                         img : OpenCV type
                             The image to be shown
                          coef : int
                             Coefficient of the blur use in order to remove noises
@@ -65,9 +65,9 @@ class T2:
         """Display given image.
                     Parameters
                     ----------
-                    out : OpenCV type
+                    image : OpenCV type
                        The image to be shown
-                    name : str
+                    title : str
                        Title of the window
                     """
         cv.imshow(self.name + ' ' + title, image)
@@ -108,9 +108,9 @@ class T3:
         """Display given image.
                     Parameters
                     ----------
-                    out : OpenCV type
+                    image : OpenCV type
                        The image to be shown
-                    name : str
+                    title : str
                        Title of the window
                     """
         cv.imshow(self.name + ' ' + title, image)
@@ -141,9 +141,9 @@ class T4:
         """Display given image.
                     Parameters
                     ----------
-                    out : OpenCV type
+                    image : OpenCV type
                        The image to be shown
-                    name : str
+                    title : str
                        Title of the window
                     """
         cv.imshow(self.name + ' ' + title, image)
@@ -153,16 +153,16 @@ class T4:
     def laplaceFilter(self, kernel):
 
         img_bw = cv.cvtColor(self.image, cv.COLOR_RGB2GRAY)
-        m, n = kernel.shape
+        x_row, y_row = kernel.shape
 
-        d = int((m - 1) / 2)
+        deri = int((x_row - 1) / 2)
         h, w = img_bw.shape[0], img_bw.shape[1]
 
         dst = np.zeros((h, w))
 
-        for y in range(d, h - d):
-            for x in range(d, w - d):
-                dst[y][x] = np.sum(img_bw[y - d:y + d + 1, x - d:x + d + 1] * kernel)
+        for y in range(deri, h - deri):
+            for x in range(deri, w - deri):
+                dst[y][x] = np.sum(img_bw[y - deri:y + deri + 1, x - deri:x + deri + 1] * kernel)
 
         self.__display(dst, 'My Laplace')
 
@@ -187,12 +187,22 @@ def main():
     task1_hf = T1(img_high, 'High Freq.')
     task1_lf = T1(img_low, 'Low Freq.')
 
+    # Task 1 implementation
     noisy_high1 = task1_hf.addSNP(0.01)
     noisy_high1 = task1_hf.medianFiltering(noisy_high1, 5)
     task1_hf.sharpening(noisy_high1)
 
-    # TODO Implementacja obrazu lf
+    noisy_high1 = task1_hf.addSNP(0.05)
+    noisy_high1 = task1_hf.medianFiltering(noisy_high1, 5)
+    task1_hf.sharpening(noisy_high1)
 
+    noisy_low1 = task1_lf.addSNP(0.01)
+    noisy_low1 = task1_lf.medianFiltering(noisy_low1, 5)
+    task1_lf.sharpening(noisy_low1)
+
+    noisy_low1 = task1_lf.addSNP(0.05)
+    noisy_low1 = task1_lf.medianFiltering(noisy_low1, 5)
+    task1_lf.sharpening(noisy_low1)
     # Objects for Task 2
     task2_hf = T2(img_high, 'High freq.')
     task2_lf = T2(img_low, 'Low Freq.')
@@ -201,28 +211,33 @@ def main():
     gauss_high1 = task2_hf.GaussianFiltering(gauss_high1)
     task2_hf.sharpening(gauss_high1)
 
-    # TODO Implementacja obrazu lf
+    gauss_low1 = task2_lf.addGaussian()
+    gauss_low1 = task2_lf.GaussianFiltering(gauss_low1)
+    task2_lf.sharpening(gauss_low1)
 
     # Objects for the Task 3/4
     task3_hf = T3(img_high, 'High freq.')
     task3_lf = T3(img_low, 'Low Freq.')
 
-    # TASK 3
+    # TASK 3/4
     task3_hf.sobelFilter(img_high)
+    gauss_sobel_high = task2_hf.addGaussian()
+    task3_hf.sobelFilter(gauss_sobel_high)
 
-    gauss_sobel = task2_hf.addGaussian()
-    task3_hf.sobelFilter(gauss_sobel)
+    task3_lf.sobelFilter(img_low)
+    gauss_sobel_low = task2_lf.addGaussian()
+    task3_lf.sobelFilter(gauss_sobel_low)
 
     # TASK 4
     task4_hf = T4(img_high, 'High freq.')
-
     task4_hf.buildInFilter()
-
     t4_kernel = np.array([[1, 1, 1],
                           [1, -8, 1],
                           [1, 1, 1]])
-    
+
     task4_hf.laplaceFilter(t4_kernel)
+
+    print("\nFinished with out any errors")
 
 
 if __name__ == "__main__":
