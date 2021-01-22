@@ -9,9 +9,9 @@ def validate(h, v, maze):
     """Validate the move.
                           Parameters
                           ----------
-                          hori : int
+                          h : int
                              horizontal length of the maze
-                          vert : int
+                          v : int
                             vertical length of the maze
                           maze : numpy array
                               Maze to be solved
